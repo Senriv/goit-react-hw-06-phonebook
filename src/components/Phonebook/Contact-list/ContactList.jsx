@@ -1,5 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { Notification } from '../Notification/Notification';
+import { useDispatch, useSelector } from 'react-redux';
+import { removeContact } from 'redux/contactsSlice';
 import {
   Contacts,
   Contact,
@@ -7,31 +9,38 @@ import {
   ContactBtnDelete,
 } from './ContactList.styled';
 
-function ContactList({ data, contactRemoving }) {
-  return (
+function ContactList() {
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts.contacts);
+  const filterValue = useSelector(state => state.contacts.filterValue);
+
+  const onContactRemoving = id => {
+    dispatch(removeContact(id));
+  };
+
+  const filteredContacts = () => {
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filterValue.toLowerCase())
+    );
+  };
+
+  const filterContacts = filteredContacts();
+
+  return contacts.length > 0 ? (
     <Contacts>
-      {data.map(contact => (
+      {filterContacts.map(contact => (
         <Contact key={contact.id}>
           <ContactName>{contact.name}:</ContactName>
           <p>{contact.number}</p>
-          <ContactBtnDelete onClick={() => contactRemoving(contact.id)}>
+          <ContactBtnDelete onClick={() => onContactRemoving(contact.id)}>
             Delete
           </ContactBtnDelete>
         </Contact>
       ))}
     </Contacts>
+  ) : (
+    <Notification message="There is no contacts"></Notification>
   );
 }
-
-ContactList.propTypes = {
-  data: PropTypes.arrayOf(
-    PropTypes.exact({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  contactRemoving: PropTypes.func.isRequired,
-};
 
 export default ContactList;
