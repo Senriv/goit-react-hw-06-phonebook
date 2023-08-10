@@ -2,6 +2,7 @@ import React from 'react';
 import { Notification } from '../Notification/Notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { removeContact } from 'redux/contactsSlice';
+import { selectVisibleContacts } from 'redux/selectors';
 import {
   Contacts,
   Contact,
@@ -11,24 +12,15 @@ import {
 
 function ContactList() {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.contacts);
-  const filterValue = useSelector(state => state.contacts.filterValue);
+  const visibleContacts = useSelector(selectVisibleContacts)
 
   const onContactRemoving = id => {
     dispatch(removeContact(id));
   };
 
-  const filteredContacts = () => {
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(filterValue.toLowerCase())
-    );
-  };
-
-  const filterContacts = filteredContacts();
-
-  return contacts.length > 0 ? (
+  return visibleContacts.length > 0 ? (
     <Contacts>
-      {filterContacts.map(contact => (
+      {visibleContacts.map(contact => (
         <Contact key={contact.id}>
           <ContactName>{contact.name}:</ContactName>
           <p>{contact.number}</p>
